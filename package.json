@@ -1,0 +1,9 @@
+{
+  "name": "shape",
+  "version": "1.0.0",
+  "description": "Transforms an unknown input into a fully-typed one",
+  "main": "index.js",
+  "author": "aymeric bouzy <8168981+aymericbouzy@users.noreply.github.com>",
+  "license": "MIT",
+  "private": false
+}
