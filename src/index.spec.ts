@@ -1,4 +1,4 @@
-import { number, object, string } from '.';
+import { array, number, object, string } from '.';
 import assertType from '../test/assertType';
 import BadInputError from './BadInputError';
 
@@ -38,4 +38,23 @@ it('can validate an object', () => {
   const validated = validator.validate({ name: 'Aymeric' });
   expect(validated).toEqual({ name: 'Aymeric' });
   assertType<string>(validated.name);
+});
+
+it('can validate an array', () => {
+  const validator = array(string());
+
+  expect(() => validator.validate(undefined)).toThrow(BadInputError);
+  expect(() => validator.validate(null)).toThrow(BadInputError);
+  expect(() => validator.validate('')).toThrow(BadInputError);
+  expect(() => validator.validate({})).toThrow(BadInputError);
+
+  expect(validator.validate([])).toEqual([]);
+  assertType<string[]>(validator.validate([]));
+
+  expect(() => validator.validate([false])).toThrow(BadInputError);
+  expect(() => validator.validate([false, ''])).toThrow(BadInputError);
+  expect(() => validator.validate(['', false])).toThrow(BadInputError);
+
+  expect(validator.validate([''])).toEqual(['']);
+  expect(validator.validate(['hello', 'world'])).toEqual(['hello', 'world']);
 });
