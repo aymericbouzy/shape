@@ -4,6 +4,7 @@ import NumberValidator from './validators/NumberValidator';
 import ObjectValidator, { ObjectShape } from './validators/ObjectValidator';
 import ArrayValidator from './validators/ArrayValidator';
 import BooleanValidator from './validators/BooleanValidator';
+import InstanceValidator from './validators/InstanceValidator';
 
 export const string = () => new StringValidator();
 export const number = () => new NumberValidator();
@@ -13,3 +14,5 @@ export const object = <T extends { [key: string]: unknown }>(
 ) => new ObjectValidator(shape);
 export const array = <T>(validator: Validator<T>) =>
   new ArrayValidator(validator);
+export const instance = <T, U>(constructor: { new (args: U): T }) =>
+  new InstanceValidator(constructor);

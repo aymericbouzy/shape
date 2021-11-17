@@ -11,6 +11,10 @@ export default class Validator<T> {
     return new ValidatorWithDefault(this, defaultValue);
   }
 
+  transform(transform: Transform): Validator<T> {
+    return new TransformValidator(this, transform);
+  }
+
   validate(input: unknown): T {
     /* istanbul ignore next */
     throw new Error('Not implemented');
@@ -59,5 +63,19 @@ class ValidatorWithDefault<T> extends Validator<T> {
     }
 
     return this.validator.validate(input);
+  }
+}
+
+interface Transform {
+  (input: unknown): unknown;
+}
+
+class TransformValidator<T> extends Validator<T> {
+  constructor(private validator: Validator<T>, private transformFn: Transform) {
+    super();
+  }
+
+  validate(input: unknown) {
+    return this.validator.validate(this.transformFn(input));
   }
 }

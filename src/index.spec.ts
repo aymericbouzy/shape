@@ -1,4 +1,4 @@
-import { array, boolean, number, object, string } from '.';
+import { array, boolean, instance, number, object, string } from '.';
 import assertType from '../test/assertType';
 import BadInputError from './BadInputError';
 
@@ -123,4 +123,14 @@ it('can provide a default', () => {
   expect(validator.validate({})).toEqual({ numbers: [] });
   expect(validator.validate({ numbers: [0] })).toEqual({ numbers: [0] });
   expect(() => validator.validate({ numbers: ['0'] })).toThrow(BadInputError);
+});
+
+it('can accept a transform', () => {
+  const date = instance(Date).from(number().or(string()));
+  expect(() => date.validate(false)).toThrow(BadInputError);
+  expect(() => date.validate({})).toThrow(BadInputError);
+  expect(date.validate(0)).toBeInstanceOf(Date);
+  expect(date.validate(0)).toEqual(new Date(0));
+  expect(date.validate(new Date().toISOString())).toBeInstanceOf(Date);
+  assertType<Date>(date.validate(0));
 });
