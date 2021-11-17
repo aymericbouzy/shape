@@ -7,6 +7,10 @@ export default class Validator<T> {
     return new OrValidator<T, U>(this, validator);
   }
 
+  default(defaultValue: T): Validator<T> {
+    return new ValidatorWithDefault(this, defaultValue);
+  }
+
   validate(input: unknown): T {
     /* istanbul ignore next */
     throw new Error('Not implemented');
@@ -38,6 +42,20 @@ class OptionalValidator<T> extends Validator<T | undefined> {
   validate(input: unknown) {
     if (typeof input === 'undefined') {
       return input;
+    }
+
+    return this.validator.validate(input);
+  }
+}
+
+class ValidatorWithDefault<T> extends Validator<T> {
+  constructor(private validator: Validator<T>, private defaultValue: T) {
+    super();
+  }
+
+  validate(input: unknown) {
+    if (typeof input === 'undefined') {
+      return this.defaultValue;
     }
 
     return this.validator.validate(input);

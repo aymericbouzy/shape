@@ -116,3 +116,11 @@ it('can validate an or', () => {
     date.validate(new Date().valueOf()),
   );
 });
+
+it('can provide a default', () => {
+  const validator = object({ numbers: array(number()).default([]) });
+
+  expect(validator.validate({})).toEqual({ numbers: [] });
+  expect(validator.validate({ numbers: [0] })).toEqual({ numbers: [0] });
+  expect(() => validator.validate({ numbers: ['0'] })).toThrow(BadInputError);
+});
