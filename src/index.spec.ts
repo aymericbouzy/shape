@@ -3,38 +3,32 @@ import assertType from '../test/assertType';
 import BadInputError from './BadInputError';
 
 it('can validate a string', () => {
-  const validator = string();
-
-  expect(() => validator.validate(undefined)).toThrow(BadInputError);
-  expect(() => validator.validate(null)).toThrow(BadInputError);
-  expect(() => validator.validate(0)).toThrow(BadInputError);
-  expect(() => validator.validate({})).toThrow(BadInputError);
-  expect(validator.validate('')).toBe('');
+  expect(() => string.validate(undefined)).toThrow(BadInputError);
+  expect(() => string.validate(null)).toThrow(BadInputError);
+  expect(() => string.validate(0)).toThrow(BadInputError);
+  expect(() => string.validate({})).toThrow(BadInputError);
+  expect(string.validate('')).toBe('');
 });
 
 it('can validate a number', () => {
-  const validator = number();
-
-  expect(() => validator.validate(undefined)).toThrow(BadInputError);
-  expect(() => validator.validate(null)).toThrow(BadInputError);
-  expect(() => validator.validate('')).toThrow(BadInputError);
-  expect(() => validator.validate({})).toThrow(BadInputError);
-  expect(validator.validate(0)).toBe(0);
+  expect(() => number.validate(undefined)).toThrow(BadInputError);
+  expect(() => number.validate(null)).toThrow(BadInputError);
+  expect(() => number.validate('')).toThrow(BadInputError);
+  expect(() => number.validate({})).toThrow(BadInputError);
+  expect(number.validate(0)).toBe(0);
 });
 
 it('can validate a boolean', () => {
-  const validator = boolean();
-
-  expect(() => validator.validate(undefined)).toThrow(BadInputError);
-  expect(() => validator.validate(null)).toThrow(BadInputError);
-  expect(() => validator.validate('')).toThrow(BadInputError);
-  expect(() => validator.validate({})).toThrow(BadInputError);
-  expect(() => validator.validate(0)).toThrow(BadInputError);
-  expect(validator.validate(true)).toBe(true);
+  expect(() => boolean.validate(undefined)).toThrow(BadInputError);
+  expect(() => boolean.validate(null)).toThrow(BadInputError);
+  expect(() => boolean.validate('')).toThrow(BadInputError);
+  expect(() => boolean.validate({})).toThrow(BadInputError);
+  expect(() => boolean.validate(0)).toThrow(BadInputError);
+  expect(boolean.validate(true)).toBe(true);
 });
 
 it('can validate an object', () => {
-  const validator = object({ name: string() });
+  const validator = object({ name: string });
 
   expect(() => validator.validate(undefined)).toThrow(BadInputError);
   expect(() => validator.validate(null)).toThrow(BadInputError);
@@ -52,7 +46,7 @@ it('can validate an object', () => {
 });
 
 it('can validate an array', () => {
-  const validator = array(string());
+  const validator = array(string);
 
   expect(() => validator.validate(undefined)).toThrow(BadInputError);
   expect(() => validator.validate(null)).toThrow(BadInputError);
@@ -71,54 +65,56 @@ it('can validate an array', () => {
 });
 
 it('can validate an optional value', () => {
-  const validator = string().optional();
+  const optionalString = string.optional();
 
-  expect(() => validator.validate(false)).toThrow(BadInputError);
-  expect(() => validator.validate({})).toThrow(BadInputError);
-  expect(() => validator.validate(0)).toThrow(BadInputError);
-  expect(() => validator.validate(null)).toThrow(BadInputError);
+  expect(() => optionalString.validate(false)).toThrow(BadInputError);
+  expect(() => optionalString.validate({})).toThrow(BadInputError);
+  expect(() => optionalString.validate(0)).toThrow(BadInputError);
+  expect(() => optionalString.validate(null)).toThrow(BadInputError);
 
-  expect(validator.validate(undefined)).toBe(undefined);
-  expect(validator.validate('')).toBe('');
+  expect(optionalString.validate(undefined)).toBe(undefined);
+  expect(optionalString.validate('')).toBe('');
 
-  assertType<string | undefined>(validator.validate('input'));
+  assertType<string | undefined>(optionalString.validate('input'));
 });
 
 it('can validate an enum', () => {
   const success = 'success';
   const error = 'error';
-  const validator = string().enum({ success, error });
+  const successOrError = string.enum({ success, error });
 
-  expect(() => validator.validate(false)).toThrow(BadInputError);
-  expect(() => validator.validate({})).toThrow(BadInputError);
-  expect(() => validator.validate('info')).toThrow(BadInputError);
-  expect(() => validator.validate('')).toThrow(BadInputError);
+  expect(() => successOrError.validate(false)).toThrow(BadInputError);
+  expect(() => successOrError.validate({})).toThrow(BadInputError);
+  expect(() => successOrError.validate('info')).toThrow(BadInputError);
+  expect(() => successOrError.validate('')).toThrow(BadInputError);
 
-  expect(validator.validate('success')).toBe('success');
-  assertType<'success' | 'error'>(validator.validate('success'));
+  expect(successOrError.validate('success')).toBe('success');
+  assertType<'success' | 'error'>(successOrError.validate('success'));
 });
 
 it('can validate an or', () => {
-  const validator = string().or(number());
-  expect(() => validator.validate(false)).toThrow(BadInputError);
-  expect(() => validator.validate({})).toThrow(BadInputError);
-  expect(() => validator.validate(null)).toThrow(BadInputError);
+  const stringOrNumber = string.or(number);
+  expect(() => stringOrNumber.validate(false)).toThrow(BadInputError);
+  expect(() => stringOrNumber.validate({})).toThrow(BadInputError);
+  expect(() => stringOrNumber.validate(null)).toThrow(BadInputError);
 
-  expect(validator.validate('success')).toBe('success');
-  expect(validator.validate(2)).toBe(2);
-  assertType<string | number>(validator.validate('success'));
+  expect(stringOrNumber.validate('success')).toBe('success');
+  expect(stringOrNumber.validate(2)).toBe(2);
+  assertType<string | number>(stringOrNumber.validate('success'));
 
-  const date = string()
-    .or(number())
-    .or(object({ $timestamp: number() }))
-    .or(object({ $timestamp: string() }));
-  assertType<string | number | { $timestamp: number | string }>(
-    date.validate(new Date().valueOf()),
-  );
+  const date = stringOrNumber
+    .or(object({ $timestamp: stringOrNumber }))
+    .or(object({ timestamp: stringOrNumber }));
+  assertType<
+    | string
+    | number
+    | { $timestamp: number | string }
+    | { timestamp: number | string }
+  >(date.validate(new Date().valueOf()));
 });
 
 it('can provide a default', () => {
-  const validator = object({ numbers: array(number()).default([]) });
+  const validator = object({ numbers: array(number).default([]) });
 
   expect(validator.validate({})).toEqual({ numbers: [] });
   expect(validator.validate({ numbers: [0] })).toEqual({ numbers: [0] });
@@ -126,7 +122,7 @@ it('can provide a default', () => {
 });
 
 it('can accept a transform', () => {
-  const date = instance(Date).from(number().or(string()));
+  const date = instance(Date).from(number.or(string));
   expect(() => date.validate(false)).toThrow(BadInputError);
   expect(() => date.validate({})).toThrow(BadInputError);
   expect(date.validate(0)).toBeInstanceOf(Date);
