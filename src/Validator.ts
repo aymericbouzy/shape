@@ -15,6 +15,20 @@ export default class Validator<T> {
     return new TransformValidator(this, transform);
   }
 
+  acceptJSON(): Validator<T> {
+    return this.transform((input: unknown) => {
+      if (typeof input === 'string') {
+        try {
+          return JSON.parse(input);
+        } catch {
+          return input;
+        }
+      }
+
+      return input;
+    });
+  }
+
   validate(input: unknown): T {
     /* istanbul ignore next */
     throw new Error('Not implemented');
@@ -79,3 +93,5 @@ class TransformValidator<T> extends Validator<T> {
     return this.validator.validate(this.transformFn(input));
   }
 }
+
+export type Shape<V> = V extends Validator<infer T> ? T : never;
