@@ -69,3 +69,17 @@ it('can validate an array', () => {
   expect(validator.validate([''])).toEqual(['']);
   expect(validator.validate(['hello', 'world'])).toEqual(['hello', 'world']);
 });
+
+it('can validate an optional value', () => {
+  const validator = string().optional();
+
+  expect(() => validator.validate(false)).toThrow(BadInputError);
+  expect(() => validator.validate({})).toThrow(BadInputError);
+  expect(() => validator.validate(0)).toThrow(BadInputError);
+  expect(() => validator.validate(null)).toThrow(BadInputError);
+
+  expect(validator.validate(undefined)).toBe(undefined);
+  expect(validator.validate('')).toBe('');
+
+  assertType<string | undefined>(validator.validate('input'));
+});

@@ -5,10 +5,12 @@ export type ObjectShape<T extends { [key: string]: unknown }> = {
   [key in keyof T]: Validator<T[key]>;
 };
 
-export default class ObjectValidator<T extends { [key: string]: unknown }>
-  implements Validator<T>
-{
-  constructor(private shape: ObjectShape<T>) {}
+export default class ObjectValidator<
+  T extends { [key: string]: unknown },
+> extends Validator<T> {
+  constructor(private shape: ObjectShape<T>) {
+    super();
+  }
 
   validate(input: unknown): T {
     if (typeof input !== 'object') {
