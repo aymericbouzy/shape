@@ -5,6 +5,7 @@ import ObjectValidator, { ObjectShape } from './validators/ObjectValidator';
 import ArrayValidator from './validators/ArrayValidator';
 import BooleanValidator from './validators/BooleanValidator';
 import InstanceValidator from './validators/InstanceValidator';
+import EnumValidator, { Tuple } from './validators/EnumValidator';
 
 export const string = new StringValidator();
 export const number = new NumberValidator();
@@ -16,3 +17,5 @@ export const array = <T>(validator: Validator<T>) =>
   new ArrayValidator(validator);
 export const instance = <T, U>(constructor: { new (args: U): T }) =>
   new InstanceValidator(constructor);
+export const constEnum = <T extends Tuple>(tuple: T) =>
+  new EnumValidator(tuple);

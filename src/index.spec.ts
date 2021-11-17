@@ -1,4 +1,4 @@
-import { array, boolean, instance, number, object, string } from '.';
+import { array, boolean, instance, number, object, string, constEnum } from '.';
 import assertType from '../test/assertType';
 import BadInputError from './BadInputError';
 
@@ -79,9 +79,7 @@ it('can validate an optional value', () => {
 });
 
 it('can validate an enum', () => {
-  const success = 'success';
-  const error = 'error';
-  const successOrError = string.enum({ success, error });
+  const successOrError = constEnum(['success', 'error'] as const);
 
   expect(() => successOrError.validate(false)).toThrow(BadInputError);
   expect(() => successOrError.validate({})).toThrow(BadInputError);
@@ -129,4 +127,30 @@ it('can accept a transform', () => {
   expect(date.validate(0)).toEqual(new Date(0));
   expect(date.validate(new Date().toISOString())).toBeInstanceOf(Date);
   assertType<Date>(date.validate(0));
+});
+
+it('can handle a real world use case', async () => {
+  const input = object({
+    filters: object({
+      warehouseId: number.optional(),
+      productIds: array(string).optional(),
+    }).optional(),
+    includes: array(constEnum(['parcel.pii'] as const)).optional(),
+    sort: object({
+      warehouseId: constEnum(['asc', 'desc'] as const).optional(),
+      productId: constEnum(['asc', 'desc'] as const).optional(),
+    }).optional(),
+  });
+
+  assertType<{
+    filters?: {
+      warehouseId?: number;
+      productIds?: string[];
+    };
+    includes?: 'parcel.pii'[];
+    sort?: {
+      warehouseId?: 'asc' | 'desc';
+      productId?: 'asc' | 'desc';
+    };
+  }>(input.validate({}));
 });
