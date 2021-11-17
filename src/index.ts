@@ -1,8 +1,8 @@
+import type Validator from './Validator';
 import StringValidator from './validators/StringValidator';
 import NumberValidator from './validators/NumberValidator';
 import ObjectValidator, { ObjectShape } from './validators/ObjectValidator';
 import ArrayValidator from './validators/ArrayValidator';
-import Validator from './Validator';
 import BooleanValidator from './validators/BooleanValidator';
 
 export const string = () => new StringValidator();

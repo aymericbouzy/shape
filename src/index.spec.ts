@@ -97,3 +97,22 @@ it('can validate an enum', () => {
   expect(validator.validate('success')).toBe('success');
   assertType<'success' | 'error'>(validator.validate('success'));
 });
+
+it('can validate an or', () => {
+  const validator = string().or(number());
+  expect(() => validator.validate(false)).toThrow(BadInputError);
+  expect(() => validator.validate({})).toThrow(BadInputError);
+  expect(() => validator.validate(null)).toThrow(BadInputError);
+
+  expect(validator.validate('success')).toBe('success');
+  expect(validator.validate(2)).toBe(2);
+  assertType<string | number>(validator.validate('success'));
+
+  const date = string()
+    .or(number())
+    .or(object({ $timestamp: number() }))
+    .or(object({ $timestamp: string() }));
+  assertType<string | number | { $timestamp: number | string }>(
+    date.validate(new Date().valueOf()),
+  );
+});
