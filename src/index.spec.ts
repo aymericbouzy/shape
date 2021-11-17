@@ -83,3 +83,17 @@ it('can validate an optional value', () => {
 
   assertType<string | undefined>(validator.validate('input'));
 });
+
+it('can validate an enum', () => {
+  const success = 'success';
+  const error = 'error';
+  const validator = string().enum({ success, error });
+
+  expect(() => validator.validate(false)).toThrow(BadInputError);
+  expect(() => validator.validate({})).toThrow(BadInputError);
+  expect(() => validator.validate('info')).toThrow(BadInputError);
+  expect(() => validator.validate('')).toThrow(BadInputError);
+
+  expect(validator.validate('success')).toBe('success');
+  assertType<'success' | 'error'>(validator.validate('success'));
+});
