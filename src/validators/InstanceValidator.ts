@@ -7,9 +7,7 @@ export default class InstanceValidator<T, U> extends Validator<T> {
   }
 
   from(validator: Validator<U>): Validator<T> {
-    return this.transform(
-      (input: unknown) => new this.Instance(validator.validate(input)),
-    );
+    return this.accept(validator).as((input) => new this.Instance(input));
   }
 
   validate(input: unknown) {
