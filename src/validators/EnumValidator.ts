@@ -3,14 +3,14 @@ import Validator from '../Validator';
 
 export type Tuple = readonly [...any[]];
 
-type OrConst<T extends Tuple> = T extends readonly [infer U, ...infer V]
-  ? U | OrConst<V>
-  : T extends (infer V)[]
+type Union<T extends Tuple> = T extends readonly [infer U, ...infer V]
+  ? U | Union<V>
+  : T extends readonly [infer V]
   ? V
   : never;
 
 export default class EnumValidator<T extends Tuple> extends Validator<
-  OrConst<T>
+  Union<T>
 > {
   constructor(private tuple: T) {
     super();
@@ -18,7 +18,7 @@ export default class EnumValidator<T extends Tuple> extends Validator<
 
   validate(input: unknown) {
     if (this.tuple.includes(input as T)) {
-      return input as OrConst<T>;
+      return input as Union<T>;
     }
 
     throw new BadInputError();
