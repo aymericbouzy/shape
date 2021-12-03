@@ -1,3 +1,5 @@
+import { string } from '.';
+
 export default class Validator<T> {
   optional(): Validator<T | undefined> {
     return new OptionalValidator<T>(this);
@@ -15,18 +17,17 @@ export default class Validator<T> {
     return new TransformValidator(this, transform);
   }
 
-  acceptJSON(): Validator<T> {
-    return this.transform((input: unknown) => {
-      if (typeof input === 'string') {
-        try {
-          return JSON.parse(input);
-        } catch {
-          return input;
-        }
-      }
+  accept<U>(acceptor: Validator<U>) {
+    const validator = this;
+    return {
+      as(transform: (input: U) => unknown): Validator<T> {
+        return new AcceptValidator(validator, acceptor, transform);
+      },
+    };
+  }
 
-      return input;
-    });
+  acceptJSON(): Validator<T> {
+    return this.accept(string).as((input) => JSON.parse(input));
   }
 
   validate(input: unknown): T {
@@ -91,6 +92,25 @@ class TransformValidator<T> extends Validator<T> {
 
   validate(input: unknown) {
     return this.validator.validate(this.transformFn(input));
+  }
+}
+
+class AcceptValidator<T, U> extends Validator<T> {
+  constructor(
+    private readonly validator: Validator<T>,
+    private readonly acceptor: Validator<U>,
+    private readonly as: (input: U) => unknown,
+  ) {
+    super();
+  }
+
+  validate(input: unknown) {
+    try {
+      const accepted = this.acceptor.validate(input);
+      return this.validator.validate(this.as(accepted));
+    } catch {
+      return this.validator.validate(input);
+    }
   }
 }
 
