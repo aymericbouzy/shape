@@ -18,11 +18,8 @@ class IntegerValidator extends NumberValidator {
 
 const integer = new IntegerValidator().acceptJSON();
 const integerArray = array(integer.acceptJSON())
-  .transform((input: unknown) => {
-    const stringInput = string.validate(input);
-
-    return stringInput.split(',').filter(Boolean);
-  })
+  .accept(string)
+  .as((input) => input.split(',').filter(Boolean))
   .default([]);
 
 it('can validate process.env', () => {
