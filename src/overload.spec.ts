@@ -3,7 +3,7 @@ import pattern from './pattern';
 
 type Options = { timeout?: number };
 
-it('can help define a function that accepts overloads', async () => {
+it.skip('can help define a function that accepts overloads', async () => {
   const invokeInput = tuple([
     string,
     object({ timeout: number.optional() }),

@@ -2,7 +2,7 @@ import { array, boolean, constEnum, object, string } from '.';
 import assertType from '../test/assertType';
 import BadInputError from './BadInputError';
 import { Shape } from './Validator';
-import NumberValidator from './validators/NumberValidator';
+import NumberValidator from './assertors/NumberAssertor';
 
 class IntegerValidator extends NumberValidator {
   validate(input: unknown) {

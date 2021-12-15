@@ -1,6 +1,6 @@
 import { string } from '.';
 
-export default class Validator<T> {
+export default abstract class Validator<T> {
   optional(): Validator<T | undefined> {
     return new OptionalValidator<T>(this);
   }
@@ -30,10 +30,7 @@ export default class Validator<T> {
     return this.accept(string).as((input) => JSON.parse(input));
   }
 
-  validate(input: unknown): T {
-    /* istanbul ignore next */
-    throw new Error('Not implemented');
-  }
+  abstract validate(input: unknown): T;
 }
 
 class OrValidator<T, U> extends Validator<T | U> {

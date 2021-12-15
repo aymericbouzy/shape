@@ -1,14 +1,16 @@
 import BadInputError from '../BadInputError';
 import Validator from '../Validator';
 
-export type ObjectShape<T extends { [key: string]: unknown }> = {
+export type Pojo = { [key: string]: unknown };
+
+export type ValidatorShape<T extends { [key: string]: unknown }> = {
   [key in keyof T]: Validator<T[key]>;
 };
 
 export default class ObjectValidator<
   T extends { [key: string]: unknown },
 > extends Validator<T> {
-  constructor(private shape: ObjectShape<T>) {
+  constructor(private shape: ValidatorShape<T>) {
     super();
   }
 
