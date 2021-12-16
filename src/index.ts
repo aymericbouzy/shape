@@ -13,6 +13,9 @@ import ObjectValidator, {
   Pojo,
   ValidatorShape,
 } from './validators/ObjectValidator';
+import DictAssertor from './assertors/DictAssertor';
+import ArrayValidator from './validators/ArrayValidator';
+import TupleValidator from './validators/TupleValidator';
 
 export const string = new StringAssertor();
 export const number = new NumberAssertor();
@@ -20,8 +23,7 @@ export const boolean: Assertor<boolean> = new BooleanAssertor();
 export const instance = <T, U>(constructor: { new (args: U): T }) =>
   new InstanceAssertor(constructor);
 export const constEnum = <T extends Enum>(tuple: T) => new EnumAssertor(tuple);
-export const tuple = <T extends Tuple>(validators: T) =>
-  new TupleAssertor(validators);
+export const dict = <T>(assertor: Assertor<T>) => new DictAssertor(assertor);
 export const unknown = new UnknownAssertor();
 
 export function object<T extends Pojo>(
@@ -35,16 +37,34 @@ export function object<T extends Pojo>(
 ): ObjectValidator<T> | ObjectAssertor<T> {
   if (
     dict(
-      string,
-      // @ts-ignore
-      instance(Assertor),
+      // @ts-ignore : we can use instanceof on abstract class
+      instance<Assertor<unknown>>(Assertor),
     ).is(shape)
   ) {
+    // @ts-ignore : all validators of shape are assertors
     return new ObjectAssertor(shape);
   }
 
   return new ObjectValidator(shape);
 }
-export function array<T>(assertor: Assertor<T>) {
-  return new ArrayAssertor(assertor);
+
+export function array<T>(assertor: Assertor<T>): Assertor<T[]>;
+export function array<T>(validator: Validator<T>): Validator<T[]>;
+export function array<T>(
+  validator: Validator<T>,
+): Validator<T[]> | Assertor<T[]> {
+  // @ts-ignore : we can use instanceof on abstract class
+  if (instance<Assertor<T>>(Assertor).is(validator)) {
+    return new ArrayAssertor(validator);
+  }
+
+  return new ArrayValidator(validator);
+}
+
+export function tuple<T extends Tuple>(assertors: T): TupleAssertor<T>;
+export function tuple<T extends Tuple>(validators: T): TupleValidator<T>;
+export function tuple<T extends Tuple>(
+  validators: T,
+): TupleAssertor<T> | TupleValidator<T> {
+  return new TupleAssertor(validators);
 }

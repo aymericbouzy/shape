@@ -19,6 +19,10 @@ export default abstract class Assertor<T> extends Validator<T> {
   or<U>(assertor: Assertor<U>): Assertor<T | U> {
     return new OrAssertor(this, assertor);
   }
+
+  optional(): Assertor<T | undefined> {
+    return new OptionalAssertor(this);
+  }
 }
 
 class OrAssertor<T, U> extends Assertor<T | U> {
@@ -31,5 +35,15 @@ class OrAssertor<T, U> extends Assertor<T | U> {
 
   is(input: unknown): input is T | U {
     return this.assertorT.is(input) || this.assertorU.is(input);
+  }
+}
+
+class OptionalAssertor<T> extends Assertor<T | undefined> {
+  constructor(private assertor: Assertor<T>) {
+    super();
+  }
+
+  is(input: unknown): input is T | undefined {
+    return typeof input === 'undefined' || this.assertor.is(input);
   }
 }
